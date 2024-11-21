@@ -4,16 +4,15 @@ public class Main {
 
 	public static void main(String[] args) {
 		ArrayList<DiskRequest> requests1 = new ArrayList<DiskRequest>();
-		requests1.add(new DiskRequest(3, 0));
-		requests1.add(new DiskRequest(6, 0));
-		requests1.add(new DiskRequest(1, 0));
-		requests1.add(new DiskRequest(0, 0));
-		requests1.add(new DiskRequest(7, 0));
+		requests1.add(new DiskRequest(1000, 0));
+		requests1.add(new DiskRequest(2000, 0));
+		requests1.add(new DiskRequest(3000, 0));
+		requests1.add(new DiskRequest(4000, 0));
 		
 		IDiskAlgorithm diskAlgorithm;
-		diskAlgorithm = new FCFS();
+		diskAlgorithm = new CSCAN();
 		
-		System.out.println(diskAlgorithm.calculateDistance(requests1, 0));
+		System.out.println(diskAlgorithm.calculateDistance(requests1, 1000));
 	}
 	
 }

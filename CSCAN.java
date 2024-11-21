@@ -18,32 +18,44 @@ public class CSCAN implements IDiskAlgorithm {
 		List<DiskRequest> sortedRequests = new ArrayList<>(requests);
 		sortedRequests.sort((a, b) -> Integer.compare(a.getTrack(), b.getTrack()));
 
-		// Split requests into those to the left and right of the initial position
 		List<DiskRequest> left = new ArrayList<>();
 		List<DiskRequest> right = new ArrayList<>();
+
 
 		for (DiskRequest request : sortedRequests) {
 			if (request.getTrack() < currentPosition) {
 				left.add(request);
+
 			} else {
 				right.add(request);
 			}
 		}
 
-		// Process requests to the right
+
 		for (DiskRequest request : right) {
 			totalDistance += Math.abs(request.getTrack() - currentPosition);
+
+			System.out.println(request.getTrack() + "-" + currentPosition + "=" + totalDistance);
 			currentPosition = request.getTrack();
 		}
 
-		// Jump to the start of the disk (simulate circular movement)
+		if (!right.isEmpty()) {
+			totalDistance += Math.abs(currentPosition - 4999);
+			currentPosition = 4999;
+			System.out.println("Jump to 4999: " + totalDistance);
+		}
+
+
+
 		if (!left.isEmpty()) {
 			totalDistance += Math.abs(currentPosition);
 			currentPosition = 0;
+			System.out.println("Jump to 0: " + totalDistance);
 
-			// Process requests on the left
 			for (DiskRequest request : left) {
 				totalDistance += Math.abs(request.getTrack() - currentPosition);
+				System.out.println(request.getTrack() + "-" + currentPosition + "=" + totalDistance);
+
 				currentPosition = request.getTrack();
 			}
 		}
