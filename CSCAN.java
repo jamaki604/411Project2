@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -16,7 +17,7 @@ public class CSCAN implements IDiskAlgorithm {
 
 		// Sort requests by track
 		List<DiskRequest> sortedRequests = new ArrayList<>(requests);
-		sortedRequests.sort((a, b) -> Integer.compare(a.getTrack(), b.getTrack()));
+		sortedRequests.sort(Comparator.comparingInt(DiskRequest::getTrack));
 
 		List<DiskRequest> left = new ArrayList<>();
 		List<DiskRequest> right = new ArrayList<>();
