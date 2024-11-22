@@ -10,9 +10,9 @@ public class Main {
 		requests1.add(new DiskRequest(4000, 0));
 		
 		IDiskAlgorithm diskAlgorithm;
-		diskAlgorithm = new FCFS();
+		diskAlgorithm = new CSCAN();
 		
 		System.out.println(diskAlgorithm.calculateDistance(requests1, 1000));
 	}
-	
+
 }

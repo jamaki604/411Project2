@@ -15,44 +15,73 @@ public class SCAN implements IDiskAlgorithm {
 		int totalDistance = 0;
 		int currentPosition = headPosition;
 
-		// Sort requests by track
+		//Sort by timeOfArrival
 		List<DiskRequest> sortedRequests = new ArrayList<>(requests);
-		sortedRequests.sort(Comparator.comparingInt(DiskRequest::getTrack));
+		sortedRequests.sort(Comparator.comparingInt(DiskRequest::getTimeOfArrival)
+				.thenComparingInt(DiskRequest::getTrack));
 
-		// Split requests into those to the left and right of the initial position
-		List<DiskRequest> left = new ArrayList<>();
-		List<DiskRequest> right = new ArrayList<>();
+		// Debug: Print sorted requests
+		//System.out.println("Sorted Requests: " + sortedRequests.stream().map(r -> "(" + r.getTrack() + ", " + r.getTimeOfArrival() + ")").toList());
 
-		for (DiskRequest request : sortedRequests) {
-			if (request.getTrack() < currentPosition) {
-				left.add(request);
-			} else {
-				right.add(request);
+		List<DiskRequest> remainingRequests = new ArrayList<>(sortedRequests);
+		int currentTime = 0;
+
+		//Continuously process requests
+		while (!remainingRequests.isEmpty()) {
+			List<DiskRequest> left = new ArrayList<>();
+			List<DiskRequest> right = new ArrayList<>();
+
+			//Split into left/right based on current position and arrival time
+			for (DiskRequest request : remainingRequests) {
+				if (request.getTimeOfArrival() <= currentTime) {
+					if (request.getTrack() < currentPosition) {
+						left.add(request);
+					} else {
+						right.add(request);
+					}
+				}
 			}
-		}
 
-		// Process requests to the right
-		for (DiskRequest request : right) {
-			totalDistance += Math.abs(request.getTrack() - currentPosition);
-			currentPosition = request.getTrack();
-			System.out.println(request.getTrack() + "-" + currentPosition + "=" + totalDistance);
-		}
+			//Debug: Print split lists
+			//System.out.println("Current Time: " + currentTime);
+			//System.out.println("Left Requests: " + left.stream().map(DiskRequest::getTrack).toList());
+			//System.out.println("Right Requests: " + right.stream().map(DiskRequest::getTrack).toList());
 
-		// Process requests to the left, in reverse order
-		if (!left.isEmpty()) {
-			totalDistance += Math.abs(currentPosition - left.getLast().getTrack());
-			currentPosition = left.getLast().getTrack();
-
-			for (int i = left.size() - 1; i >= 0; i--) {
-				DiskRequest request = left.get(i);
-				totalDistance += Math.abs(request.getTrack() - currentPosition);
+			//Process right requests
+			for (DiskRequest request : right) {
+				int previousPosition = currentPosition;
 				currentPosition = request.getTrack();
-				System.out.println(request.getTrack() + "-" + currentPosition + "=" + totalDistance);
+				int movementTime = Math.abs(currentPosition - previousPosition);
+				totalDistance += movementTime;
+				currentTime += movementTime; // Update time based on movement
+				System.out.println(previousPosition + " -> " + currentPosition + " = " + totalDistance + " (Time: " + currentTime + ")");
+				remainingRequests.remove(request);
+			}
+
+			// Process left in reverse order
+			if (!left.isEmpty()) {
+				left.sort(Comparator.comparingInt(DiskRequest::getTrack).reversed()); // Sort left in descending order
+				for (DiskRequest request : left) {
+					int previousPosition = currentPosition;
+					currentPosition = request.getTrack();
+					int movementTime = Math.abs(currentPosition - previousPosition);
+					totalDistance += movementTime;
+					currentTime += movementTime; // Update time based on movement
+					System.out.println(previousPosition + " -> " + currentPosition + " = " + totalDistance + " (Time: " + currentTime + ")");
+					remainingRequests.remove(request);
+				}
+			}
+
+			//If no requests were processed, advance time to the next arrival
+			if (left.isEmpty() && right.isEmpty() && !remainingRequests.isEmpty()) {
+				currentTime = remainingRequests.stream()
+						.mapToInt(DiskRequest::getTimeOfArrival)
+						.min()
+						.orElse(currentTime);
 			}
 		}
 
 		return totalDistance;
 	}
-
 
 }
